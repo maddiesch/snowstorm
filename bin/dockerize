@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker build -t "maddiesch/snowstorm:1.0.0" .
+docker build -t "maddiesch/snowstorm:latest" .

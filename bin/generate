@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+
+require 'redis'
+require 'pry'
+require 'connection_pool'
+
+REDIS = ConnectionPool.new(size: 5) { Redis.new(db: 5) }
+
+REQUEST_QUEUE = 'snowstorm-generate'.freeze
+CLIENT = 'snowstorm-testing'.freeze
+
+threads = []
+
+50.times do |idx|
+  request = JSON.dump(
+    'ClientID' => CLIENT,
+    'RequestID' => idx.to_s
+  )
+
+  key = "snowstorm-delivery.#{CLIENT}.#{idx}"
+
+  start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+  REDIS.with { |r| r.rpush(REQUEST_QUEUE, request) }
+
+  response = nil
+  response = REDIS.with { |r| r.lpop(key) } while response.nil?
+
+  end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+
+  puts "Got #{response} in #{format('%.02f', (end_time - start_time) * 1000.0)}"
+end
+
+threads.each(&:join)
+
