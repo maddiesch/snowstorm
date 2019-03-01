@@ -22,6 +22,17 @@ Options:
 
 - `wait-ms` The amount of time (in milliseconds) a listener should wait until it checks for new messages.
 
+```bash
+docker run maddiesch/snowstorm:latest \
+  -host=docker.for.mac.localhost \
+  -port=6379 \
+  -db=5 \
+  -queue=snowstorm-generate \
+  -prefix=snowstorm-delivery \
+  -count=5 \
+  -wait-ms=10
+```
+
 ### Request
 
 `$ redis-cli rpush snowstorm-generate '{"ClientID":"my-client","RequestID":"1b"}'`
